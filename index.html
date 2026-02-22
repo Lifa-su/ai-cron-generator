@@ -3,608 +3,443 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Cron Expression Generator</title>
+<title>AI Cron Generator - Cron表达式生成器</title>
+<meta name="description" content="AI Cron Expression Generator - Convert natural language to cron expressions. Support Chinese and English.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--primary:#6366f1;--primary-hover:#818cf8;--text:#f1f5f9;--muted:#94a3b8;--success:#22c55e;--danger:#ef4444;--accent:#f59e0b}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-.container{max-width:960px;margin:0 auto;padding:20px}
-h1{text-align:center;font-size:2rem;margin:20px 0;background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-h1 span{font-size:1rem;display:block;-webkit-text-fill-color:var(--muted);color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
-.card h2{font-size:1.1rem;margin-bottom:12px;color:var(--primary-hover)}
-label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
-input,select,textarea{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;outline:none;transition:border .2s}
-input:focus,select:focus,textarea:focus{border-color:var(--primary)}
-textarea{resize:vertical;min-height:60px}
-button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:var(--primary-hover)}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-sm{padding:6px 14px;font-size:.8rem}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
-.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
-.btn-outline.active{border-color:var(--primary);color:var(--primary);background:rgba(99,102,241,.1)}
-.btn-copy{background:var(--success);color:#fff;padding:6px 14px;font-size:.8rem}
-.btn-copy:hover{opacity:.9}
-.cron-display{font-family:"SF Mono","Fira Code",monospace;font-size:1.8rem;text-align:center;padding:16px;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin:12px 0;color:var(--accent);display:flex;align-items:center;justify-content:center;gap:12px}
-.cron-display .expr{flex:1}
-.explain-text{font-size:.9rem;color:var(--muted);text-align:center;padding:8px;min-height:2em}
-.templates{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.template-btn{padding:6px 12px;font-size:.8rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:20px;color:var(--primary-hover);cursor:pointer;transition:all .2s}
-.template-btn:hover{background:rgba(99,102,241,.2);border-color:var(--primary)}
+:root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3a;--text:#e4e4e7;--text2:#9ca3af;--accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;--orange:#f59e0b}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+.container{max-width:900px;margin:0 auto;padding:20px}
+header{text-align:center;padding:40px 0 30px}
+header h1{font-size:2.2em;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+header p{color:var(--text2);font-size:1.05em}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.card h2{font-size:1.2em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card h2 span{font-size:1.3em}
+.input-group{display:flex;gap:10px;margin-bottom:12px}
+.input-group input{flex:1;padding:12px 16px;background:#12141c;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:1em;outline:none;transition:border-color .2s}
+.input-group input:focus{border-color:var(--accent)}
+.input-group input::placeholder{color:#555}
+.btn{padding:12px 24px;border:none;border-radius:10px;font-size:.95em;cursor:pointer;transition:all .2s;font-weight:600}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-copy{background:#1e293b;color:var(--green);border:1px solid #2d3748}
+.btn-copy:hover{background:#2d3748}
+.btn-copy.copied{background:#166534;color:#fff;border-color:#166534}
+.templates{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:12px}
+.tpl-btn{padding:10px 14px;background:#12141c;border:1px solid var(--border);border-radius:8px;color:var(--text2);cursor:pointer;font-size:.85em;transition:all .2s;text-align:left}
+.tpl-btn:hover{border-color:var(--accent);color:var(--text);background:#1e2030}
+.tpl-btn .tpl-cron{color:var(--accent2);font-family:monospace;font-size:.9em;display:block;margin-top:4px}
+.result-box{background:#12141c;border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px}
+.cron-display{font-family:'SF Mono',Monaco,Consolas,monospace;font-size:1.8em;color:var(--green);text-align:center;padding:16px;letter-spacing:2px}
+.cron-fields{display:flex;justify-content:center;gap:20px;margin-top:8px;flex-wrap:wrap}
+.cron-field{text-align:center;font-size:.8em;color:var(--text2)}
+.cron-field span{display:block;font-family:monospace;font-size:1.4em;color:var(--accent2);margin-bottom:4px}
+.explain-text{color:var(--text);font-size:1em;padding:8px 0;line-height:1.8}
 .next-runs{list-style:none;padding:0}
-.next-runs li{padding:6px 0;border-bottom:1px solid var(--border);font-size:.9rem;font-family:monospace;display:flex;justify-content:space-between}
-.next-runs li:last-child{border:none}
-.next-runs .idx{color:var(--primary);font-weight:600;margin-right:8px}
-.next-runs .relative{color:var(--muted);font-size:.8rem}
-.editor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.field-group select{height:120px}
-.mode-toggle{display:flex;gap:8px;margin-bottom:12px}
-.api-row{display:flex;gap:8px;align-items:end}
-.api-row input{flex:1}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:20px;right:20px;background:var(--success);color:#fff;padding:10px 20px;border-radius:8px;font-size:.9rem;opacity:0;transition:opacity .3s;z-index:999;pointer-events:none}
-.toast.show{opacity:1}
-.tz-row{display:flex;gap:8px;align-items:end;margin-top:12px}
-.tz-row select{flex:1}
-.input-row{display:flex;gap:8px;align-items:end;margin-bottom:12px}
-.input-row>div{flex:1}
-.cron-input-wrap{display:flex;gap:8px;align-items:center}
-.cron-input-wrap input{flex:1;font-family:"SF Mono","Fira Code",monospace;font-size:1.1rem;text-align:center}
-@media(max-width:600px){h1{font-size:1.5rem}.cron-display{font-size:1.2rem}.editor-grid{grid-template-columns:1fr 1fr}}
+.next-runs li{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);font-family:monospace;font-size:.9em;display:flex;justify-content:space-between;align-items:center}
+.next-runs li:last-child{border-bottom:none}
+.next-runs li .run-idx{color:var(--accent2);font-weight:600;min-width:24px}
+.next-runs li .run-time{color:var(--text)}
+.next-runs li .run-rel{color:var(--text2);font-size:.85em}
+.hint{color:var(--text2);font-size:.85em;margin-top:8px}
+.error{color:var(--red);font-size:.9em;margin-top:8px}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:#12141c;border-radius:10px;padding:4px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;color:var(--text2);font-size:.9em;transition:all .2s;border:none;background:transparent}
+.tab.active{background:var(--accent);color:#fff}
+.copy-row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.copy-row input{flex:1;padding:10px 14px;background:#0a0c12;border:1px solid var(--border);border-radius:8px;color:var(--green);font-family:monospace;font-size:1.1em;outline:none}
+footer{text-align:center;padding:30px 0;color:#555;font-size:.8em}
+@media(max-width:600px){
+  header h1{font-size:1.6em}
+  .container{padding:12px}
+  .card{padding:16px}
+  .input-group{flex-direction:column}
+  .cron-display{font-size:1.3em}
+  .cron-fields{gap:10px}
+  .templates{grid-template-columns:repeat(2,1fr)}
+  .copy-row{flex-direction:column}
+}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🤖 AI Cron Expression Generator<span>Natural Language → Cron Expression | 自然语言 → Cron表达式</span></h1>
+  <header>
+    <h1>⏰ AI Cron Generator</h1>
+    <p>Natural language to Cron expression · 自然语言转Cron表达式</p>
+  </header>
 
-<div class="card">
-<h2>💬 AI Natural Language Input</h2>
-<div class="input-row">
-<div><label for="apiKey">DeepSeek API Key</label><input type="password" id="apiKey" placeholder="sk-..."></div>
-<div style="flex:0 0 auto;padding-top:18px"><button class="btn-primary btn-sm" onclick="saveApiKey()">Save</button></div>
-</div>
-<label for="nlInput">Describe your schedule / 描述你的定时任务</label>
-<textarea id="nlInput" placeholder="e.g. Every weekday at 9:30 AM / 每个工作日早上9点半执行"></textarea>
-<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn-primary" id="aiBtn" onclick="aiGenerate()">✨ AI Generate</button>
-<button class="btn-primary" id="explainBtn" onclick="aiExplain()" style="background:var(--accent)">📖 AI Explain</button>
-</div>
-<div id="aiResult" class="explain-text" style="margin-top:8px"></div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('generate')">🤖 Generate 生成</button>
+      <button class="tab" onclick="switchTab('explain')">📖 Explain 解释</button>
+    </div>
+
+    <div id="tab-generate">
+      <h2><span>💬</span> Describe your schedule / 描述你的定时任务</h2>
+      <div class="input-group">
+        <input type="text" id="nlInput" placeholder='e.g. "every Monday at 9am" / "每周一早上9点" / "每5分钟"' onkeydown="if(event.key==='Enter')generateCron()">
+        <button class="btn btn-primary" onclick="generateCron()">Generate</button>
+      </div>
+      <p class="hint">💡 Try: every 5 minutes / 每天凌晨3点 / weekdays at 9:30 / 每月1号中午12点 / every hour / 每周五下午6点</p>
+    </div>
+
+    <div id="tab-explain" style="display:none">
+      <h2><span>🔍</span> Enter a cron expression / 输入Cron表达式</h2>
+      <div class="input-group">
+        <input type="text" id="cronInput" placeholder="e.g. */5 * * * *" onkeydown="if(event.key==='Enter')explainCron()">
+        <button class="btn btn-primary" onclick="explainCron()">Explain</button>
+      </div>
+      <p class="hint">💡 Standard 5-field format: minute hour day month weekday</p>
+    </div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <h2><span>✅</span> Result / 结果</h2>
+    <div class="cron-display" id="cronDisplay"></div>
+    <div class="cron-fields" id="cronFields"></div>
+    <div class="copy-row">
+      <input type="text" id="cronCopy" readonly>
+      <button class="btn btn-copy" id="copyBtn" onclick="copyCron()">📋 Copy</button>
+    </div>
+    <div class="result-box" id="explainBox">
+      <div class="explain-text" id="explainText"></div>
+    </div>
+    <div id="errorMsg" class="error" style="display:none"></div>
+  </div>
+
+  <div class="card" id="nextRunsCard" style="display:none">
+    <h2><span>📅</span> Next Executions / 下次执行时间</h2>
+    <ul class="next-runs" id="nextRunsList"></ul>
+  </div>
+
+  <div class="card">
+    <h2><span>⚡</span> Quick Templates / 常用模板</h2>
+    <div class="templates" id="templates"></div>
+  </div>
 </div>
 
-<div class="card">
-<h2>⏰ Cron Expression</h2>
-<div class="mode-toggle">
-<button class="btn-outline active" id="mode5" onclick="setMode(5)">Standard (5-field)</button>
-<button class="btn-outline" id="mode6" onclick="setMode(6)">Extended (6-field + seconds)</button>
-</div>
-<div class="cron-input-wrap">
-<input type="text" id="cronInput" value="* * * * *" onchange="onCronInputChange()" onkeyup="onCronInputChange()">
-<button class="btn-copy" onclick="copyCron()">📋 Copy</button>
-</div>
-<div class="cron-display"><span class="expr" id="cronExpr">* * * * *</span></div>
-<div class="explain-text" id="cronExplain">Every minute</div>
-<div class="tz-row">
-<div style="flex:1"><label for="tzSelect">Timezone</label><select id="tzSelect" onchange="updateNextRuns()"></select></div>
-</div>
-</div>
+<footer>
+  <p>AI Cron Generator &copy; 2025 | Standard 5-field cron format</p>
+</footer>
 
-<div class="card">
-<h2>🎛️ Visual Editor</h2>
-<div class="editor-grid" id="editorGrid"></div>
-<div style="margin-top:12px;text-align:center">
-<button class="btn-primary" onclick="applyEditor()">Apply to Expression</button>
-</div>
-</div>
-
-<div class="card">
-<h2>📋 Common Templates</h2>
-<div class="templates" id="templates"></div>
-</div>
-
-<div class="card">
-<h2>📅 Next 10 Executions</h2>
-<ul class="next-runs" id="nextRuns"></ul>
-</div>
-</div>
-<div class="toast" id="toast"></div>
 <script>
-// ===== State =====
-let cronMode = 5; // 5 or 6 fields
 const TEMPLATES = [
-  {label:'Every Minute', cron:'* * * * *', cron6:'* * * * * *'},
-  {label:'Every 5 Minutes', cron:'*/5 * * * *', cron6:'0 */5 * * * *'},
-  {label:'Every Hour', cron:'0 * * * *', cron6:'0 0 * * * *'},
-  {label:'Daily at Midnight', cron:'0 0 * * *', cron6:'0 0 0 * * *'},
-  {label:'Daily at 9 AM', cron:'0 9 * * *', cron6:'0 0 9 * * *'},
-  {label:'Weekdays 9 AM', cron:'0 9 * * 1-5', cron6:'0 0 9 * * 1-5'},
-  {label:'Every Monday 8 AM', cron:'0 8 * * 1', cron6:'0 0 8 * * 1'},
-  {label:'1st of Month', cron:'0 0 1 * *', cron6:'0 0 0 1 * *'},
-  {label:'Every Sunday Noon', cron:'0 12 * * 0', cron6:'0 0 12 * * 0'},
-  {label:'Every 30 Min', cron:'*/30 * * * *', cron6:'0 */30 * * * *'},
-  {label:'Twice Daily (9,18)', cron:'0 9,18 * * *', cron6:'0 0 9,18 * * *'},
-  {label:'Quarterly', cron:'0 0 1 1,4,7,10 *', cron6:'0 0 0 1 1,4,7,10 *'},
+  {name:'Every Minute / 每分钟', cron:'* * * * *'},
+  {name:'Every 5 Min / 每5分钟', cron:'*/5 * * * *'},
+  {name:'Every 15 Min / 每15分钟', cron:'*/15 * * * *'},
+  {name:'Every 30 Min / 每30分钟', cron:'*/30 * * * *'},
+  {name:'Every Hour / 每小时', cron:'0 * * * *'},
+  {name:'Every 2 Hours / 每2小时', cron:'0 */2 * * *'},
+  {name:'Every 6 Hours / 每6小时', cron:'0 */6 * * *'},
+  {name:'Daily Midnight / 每天午夜', cron:'0 0 * * *'},
+  {name:'Daily 9AM / 每天早9点', cron:'0 9 * * *'},
+  {name:'Daily Noon / 每天中午', cron:'0 12 * * *'},
+  {name:'Weekdays 9AM / 工作日9点', cron:'0 9 * * 1-5'},
+  {name:'Monday 9AM / 周一早9点', cron:'0 9 * * 1'},
+  {name:'Friday 6PM / 周五下午6点', cron:'0 18 * * 5'},
+  {name:'Weekly Sunday / 每周日', cron:'0 0 * * 0'},
+  {name:'Monthly 1st / 每月1号', cron:'0 0 1 * *'},
+  {name:'Quarterly / 每季度', cron:'0 0 1 1,4,7,10 *'},
+  {name:'Yearly / 每年', cron:'0 0 1 1 *'},
+  {name:'Every Weekday Noon / 工作日中午', cron:'0 12 * * 1-5'},
 ];
 
-const FIELD_NAMES_5 = ['Minute','Hour','Day of Month','Month','Day of Week'];
-const FIELD_NAMES_6 = ['Second','Minute','Hour','Day of Month','Month','Day of Week'];
-const FIELD_RANGES = {
-  'Second':{min:0,max:59},'Minute':{min:0,max:59},'Hour':{min:0,max:23},
-  'Day of Month':{min:1,max:31},'Month':{min:1,max:12},'Day of Week':{min:0,max:6}
-};
-const MONTH_NAMES = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DOW_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const WEEKDAYS_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEKDAYS_ZH = ['周日','周一','周二','周三','周四','周五','周六'];
+const MONTHS_EN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// ===== Init =====
-function init() {
-  loadApiKey();
-  initTimezones();
-  renderTemplates();
-  renderEditor();
-  updateFromCron(getCron());
-}
-
-function loadApiKey() {
-  const k = localStorage.getItem('deepseek_api_key');
-  if (k) document.getElementById('apiKey').value = k;
-}
-function saveApiKey() {
-  const k = document.getElementById('apiKey').value.trim();
-  if (k) { localStorage.setItem('deepseek_api_key', k); showToast('API Key saved!'); }
-}
-function getApiKey() {
-  return document.getElementById('apiKey').value.trim() || localStorage.getItem('deepseek_api_key') || '';
-}
-
-function initTimezones() {
-  const sel = document.getElementById('tzSelect');
-  const tzs = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [
-    'UTC','Asia/Shanghai','Asia/Tokyo','America/New_York','America/Los_Angeles',
-    'America/Chicago','Europe/London','Europe/Paris','Europe/Berlin','Australia/Sydney'
-  ];
-  const local = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  tzs.forEach(tz => {
-    const opt = document.createElement('option');
-    opt.value = tz; opt.textContent = tz;
-    if (tz === local) opt.selected = true;
-    sel.appendChild(opt);
-  });
-}
-
-function renderTemplates() {
+function initTemplates(){
   const c = document.getElementById('templates');
-  c.innerHTML = TEMPLATES.map((t,i) =>
-    '<button class="template-btn" onclick="applyTemplate('+i+')">'+t.label+'</button>'
+  TEMPLATES.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'tpl-btn';
+    b.innerHTML = t.name + '<span class="tpl-cron">' + t.cron + '</span>';
+    b.onclick = () => { applyCron(t.cron); };
+    c.appendChild(b);
+  });
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', (tab==='generate'&&i===0)||(tab==='explain'&&i===1));
+  });
+  document.getElementById('tab-generate').style.display = tab==='generate'?'':'none';
+  document.getElementById('tab-explain').style.display = tab==='explain'?'':'none';
+}
+
+function applyCron(cron){
+  document.getElementById('cronInput').value = cron;
+  switchTab('explain');
+  explainCron();
+}
+
+function showResult(cron, explanation){
+  const parts = cron.split(/\s+/);
+  if(parts.length !== 5) return showError('Invalid cron: must have 5 fields');
+  document.getElementById('resultCard').style.display = '';
+  document.getElementById('cronDisplay').textContent = cron;
+  document.getElementById('cronCopy').value = cron;
+  document.getElementById('errorMsg').style.display = 'none';
+  const labels = ['Minute 分','Hour 时','Day 日','Month 月','Weekday 周'];
+  document.getElementById('cronFields').innerHTML = parts.map((p,i) =>
+    '<div class="cron-field"><span>'+p+'</span>'+labels[i]+'</div>'
   ).join('');
+  document.getElementById('explainText').innerHTML = explanation;
+  document.getElementById('explainBox').style.display = '';
+  showNextRuns(cron);
 }
 
-function applyTemplate(i) {
-  const t = TEMPLATES[i];
-  const cron = cronMode === 6 ? t.cron6 : t.cron;
-  setCron(cron);
-  updateFromCron(cron);
+function showError(msg){
+  document.getElementById('resultCard').style.display = '';
+  document.getElementById('errorMsg').style.display = '';
+  document.getElementById('errorMsg').textContent = msg;
 }
 
-// ===== Cron Display & Input =====
-function getCron() { return document.getElementById('cronInput').value.trim(); }
-function setCron(v) {
-  document.getElementById('cronInput').value = v;
-  document.getElementById('cronExpr').textContent = v;
+function copyCron(){
+  const v = document.getElementById('cronCopy').value;
+  navigator.clipboard.writeText(v).then(()=>{
+    const b = document.getElementById('copyBtn');
+    b.textContent = '✅ Copied!';
+    b.classList.add('copied');
+    setTimeout(()=>{ b.textContent='📋 Copy'; b.classList.remove('copied'); }, 2000);
+  });
 }
 
-function onCronInputChange() {
-  const v = getCron();
-  document.getElementById('cronExpr').textContent = v;
-  updateFromCron(v);
-}
-
-function updateFromCron(cron) {
-  document.getElementById('cronExplain').textContent = explainCron(cron);
-  updateNextRuns();
-  syncEditorFromCron(cron);
-}
-
-function setMode(m) {
-  cronMode = m;
-  document.getElementById('mode5').classList.toggle('active', m===5);
-  document.getElementById('mode6').classList.toggle('active', m===6);
-  renderEditor();
-  const cur = getCron().split(/\s+/);
-  if (m===6 && cur.length===5) { setCron('0 '+getCron()); }
-  else if (m===5 && cur.length===6) { setCron(cur.slice(1).join(' ')); }
-  updateFromCron(getCron());
-}
-
-function copyCron() {
-  navigator.clipboard.writeText(getCron()).then(() => showToast('Copied: '+getCron()));
-}
-// ===== Explain Cron =====
-function explainCron(cron) {
-  const parts = cron.trim().split(/\s+/);
-  if (parts.length < 5 || parts.length > 6) return 'Invalid cron expression';
-  const is6 = parts.length === 6;
-  const sec = is6 ? parts[0] : null;
-  const min = is6 ? parts[1] : parts[0];
-  const hour = is6 ? parts[2] : parts[1];
-  const dom = is6 ? parts[3] : parts[2];
-  const mon = is6 ? parts[4] : parts[3];
-  const dow = is6 ? parts[5] : parts[4];
-
-  let desc = [];
-  if (sec !== null && sec !== '0' && sec !== '*') desc.push(descField(sec, 'second'));
-  desc.push(descField(min, 'minute'));
-  desc.push(descField(hour, 'hour'));
-  desc.push(descField(dom, 'day-of-month'));
-  desc.push(descField(mon, 'month'));
-  desc.push(descField(dow, 'day-of-week'));
-
-  return buildExplanation(sec, min, hour, dom, mon, dow);
-}
-
-function buildExplanation(sec, min, hour, dom, mon, dow) {
-  let parts = [];
-  // Second
-  if (sec !== null && sec !== '0') {
-    if (sec === '*') parts.push('every second');
-    else if (sec.startsWith('*/')) parts.push('every '+sec.slice(2)+' seconds');
-    else parts.push('at second '+sec);
+// ===== Natural Language Parser =====
+function generateCron(){
+  const input = document.getElementById('nlInput').value.trim();
+  if(!input) return;
+  const cron = nlToCron(input);
+  if(cron){
+    const exp = cronToExplanation(cron);
+    showResult(cron, exp);
+  } else {
+    showError('Could not parse: "'+input+'". Try simpler expressions like "every 5 minutes" or "每天早上9点".');
   }
+}
+
+function nlToCron(text){
+  const t = text.toLowerCase().trim();
+
+  // every N minutes / 每N分钟
+  let m;
+  if((m = t.match(/every\s+(\d+)\s*min/)) || (m = t.match(/每(\d+)分钟/))) return '*/'+m[1]+' * * * *';
+  if(t.match(/every\s*min/) || t.match(/每分钟/)) return '* * * * *';
+
+  // every N hours / 每N小时
+  if((m = t.match(/every\s+(\d+)\s*hour/)) || (m = t.match(/每(\d+)(个)?小时/))) return '0 */'+m[1]+' * * *';
+  if(t.match(/every\s*hour/) || t.match(/每小时/) || t.match(/每个小时/)) return '0 * * * *';
+
+  // specific time patterns
+  let hour = null, minute = 0, dow = null, dom = null, month = null;
+
+  // Parse weekday
+  const dowMap = {
+    'monday':1,'mon':1,'tuesday':2,'tue':2,'wednesday':3,'wed':3,
+    'thursday':4,'thu':4,'friday':5,'fri':5,'saturday':6,'sat':6,'sunday':0,'sun':0,
+    '周一':1,'周二':2,'周三':3,'周四':4,'周五':5,'周六':6,'周日':0,'周天':0,
+    '星期一':1,'星期二':2,'星期三':3,'星期四':4,'星期五':5,'星期六':6,'星期日':0,'星期天':0,
+    'weekday':'1-5','weekdays':'1-5','工作日':'1-5','weekend':'0,6','weekends':'0,6','周末':'0,6'
+  };
+  for(const [k,v] of Object.entries(dowMap)){
+    if(t.includes(k)){ dow = v; break; }
+  }
+
+  // Parse month day / 每月N号
+  if((m = t.match(/(\d+)(?:st|nd|rd|th)?\s*(?:of\s*(?:every|each)\s*month|day\s*of)/)) || (m = t.match(/每月(\d+)[号日]/))) dom = parseInt(m[1]);
+
+  // Parse time - English
+  if((m = t.match(/(\d{1,2}):(\d{2})\s*(am|pm)?/i))){
+    hour = parseInt(m[1]); minute = parseInt(m[2]);
+    if(m[3]&&m[3].toLowerCase()==='pm'&&hour<12) hour+=12;
+    if(m[3]&&m[3].toLowerCase()==='am'&&hour===12) hour=0;
+  } else if((m = t.match(/(\d{1,2})\s*(am|pm)/i))){
+    hour = parseInt(m[1]);
+    if(m[2].toLowerCase()==='pm'&&hour<12) hour+=12;
+    if(m[2].toLowerCase()==='am'&&hour===12) hour=0;
+  }
+  // Parse time - Chinese
+  else if((m = t.match(/(?:早上|上午|早晨|凌晨)(\d{1,2})(?::(\d{2})|点(\d{2})?分?)?/))){
+    hour = parseInt(m[1]); minute = parseInt(m[2]||m[3]||0);
+  } else if((m = t.match(/(?:下午|午后)(\d{1,2})(?::(\d{2})|点(\d{2})?分?)?/))){
+    hour = parseInt(m[1]); if(hour<12) hour+=12; minute = parseInt(m[2]||m[3]||0);
+  } else if((m = t.match(/(?:晚上|晚间|夜里|夜间|傍晚)(\d{1,2})(?::(\d{2})|点(\d{2})?分?)?/))){
+    hour = parseInt(m[1]); if(hour<12) hour+=12; minute = parseInt(m[2]||m[3]||0);
+  } else if((m = t.match(/(?:中午)(\d{1,2})?(?::(\d{2})|点(\d{2})?分?)?/))){
+    hour = m[1] ? parseInt(m[1]) : 12; minute = parseInt(m[2]||m[3]||0);
+  } else if((m = t.match(/(\d{1,2})(?::(\d{2}))?点(\d{2})?分?/))){
+    hour = parseInt(m[1]); minute = parseInt(m[2]||m[3]||0);
+  } else if((m = t.match(/(\d{1,2})点(\d{2})?分?/))){
+    hour = parseInt(m[1]); minute = parseInt(m[2]||0);
+  }
+
+  // midnight / noon
+  if(t.match(/midnight|午夜|凌晨(?!\d)/)) { hour=0; minute=0; }
+  if(t.match(/noon|正午|中午(?!\d)/)) { hour=12; minute=0; }
+
+  // every day / 每天
+  const isDaily = t.match(/every\s*day|daily|每天|每日/);
+  const isWeekly = t.match(/every\s*week|weekly|每周|每星期/);
+  const isMonthly = t.match(/every\s*month|monthly|每月/);
+  const isYearly = t.match(/every\s*year|yearly|annually|每年/);
+
+  // Build cron
+  if(hour !== null || dow !== null || dom !== null || isDaily || isWeekly || isMonthly){
+    const mn = (hour!==null) ? minute : 0;
+    const hr = (hour!==null) ? hour : 0;
+    const d = dom !== null ? dom : '*';
+    const mo = month !== null ? month : '*';
+    const w = dow !== null ? dow : (dom !== null || isDaily || isMonthly || isYearly ? '*' : (isWeekly && hour !== null ? 1 : '*'));
+    return mn+' '+hr+' '+d+' '+mo+' '+w;
+  }
+
+  return null;
+}
+
+// ===== Cron Explainer =====
+function explainCron(){
+  const input = document.getElementById('cronInput').value.trim();
+  if(!input) return;
+  const parts = input.split(/\s+/);
+  if(parts.length !== 5) return showError('Invalid cron expression. Need 5 fields: minute hour day month weekday');
+  const exp = cronToExplanation(input);
+  showResult(input, exp);
+}
+
+function cronToExplanation(cron){
+  const [min,hr,dom,mon,dow] = cron.split(/\s+/);
+  let en = [], zh = [];
+
   // Minute
-  if (min === '*') parts.push('every minute');
-  else if (min.startsWith('*/')) parts.push('every '+min.slice(2)+' minutes');
-  else parts.push('at minute '+min);
+  if(min === '*'){ en.push('every minute'); zh.push('每分钟'); }
+  else if(min.startsWith('*/')){ en.push('every '+min.slice(2)+' minutes'); zh.push('每'+min.slice(2)+'分钟'); }
+  else if(min.includes(',')){ en.push('at minutes '+min); zh.push('在第'+min+'分钟'); }
+  else if(min.includes('-')){ en.push('minutes '+min); zh.push('第'+min+'分钟'); }
+  else { en.push('at minute '+min); zh.push('在第'+min+'分钟'); }
+
   // Hour
-  if (hour === '*') { /* every hour implied */ }
-  else if (hour.startsWith('*/')) parts.push('every '+hour.slice(2)+' hours');
-  else parts.push('at hour '+formatHour(hour));
-  // DOM
-  if (dom !== '*') {
-    if (dom.startsWith('*/')) parts.push('every '+dom.slice(2)+' days');
-    else parts.push('on day '+dom+' of the month');
+  if(hr === '*'){ if(min!=='*'&&!min.startsWith('*/')){ en.push('of every hour'); zh.push('每小时'); }}
+  else if(hr.startsWith('*/')){ en.push('every '+hr.slice(2)+' hours'); zh.push('每'+hr.slice(2)+'小时'); }
+  else if(hr.includes(',')){ en.push('at hours '+hr); zh.push('在'+hr+'点'); }
+  else {
+    const h = parseInt(hr);
+    const ampm = h<12?'AM':'PM';
+    const h12 = h===0?12:(h>12?h-12:h);
+    en.push('at '+h12+':'+min.padStart(2,'0')+' '+ampm);
+    zh.push('在'+hr+':'+min.padStart(2,'0'));
   }
+
+  // Day of month
+  if(dom !== '*'){
+    if(dom.startsWith('*/')){ en.push('every '+dom.slice(2)+' days'); zh.push('每'+dom.slice(2)+'天'); }
+    else { en.push('on day '+dom+' of the month'); zh.push('每月'+dom+'号'); }
+  }
+
   // Month
-  if (mon !== '*') {
-    if (mon.startsWith('*/')) parts.push('every '+mon.slice(2)+' months');
+  if(mon !== '*'){
+    if(mon.startsWith('*/')){ en.push('every '+mon.slice(2)+' months'); zh.push('每'+mon.slice(2)+'个月'); }
     else {
-      const ms = mon.split(',').map(m => MONTH_NAMES[parseInt(m)] || m).join(', ');
-      parts.push('in '+ms);
+      const mNames = mon.split(',').map(m => MONTHS_EN[parseInt(m)]||m).join(', ');
+      en.push('in '+mNames);
+      zh.push(mon+'月');
     }
   }
-  // DOW
-  if (dow !== '*') {
-    if (dow === '1-5') parts.push('on weekdays');
-    else if (dow === '0,6') parts.push('on weekends');
+
+  // Day of week
+  if(dow !== '*'){
+    if(dow === '1-5'){ en.push('on weekdays'); zh.push('工作日'); }
+    else if(dow === '0,6'){ en.push('on weekends'); zh.push('周末'); }
     else {
-      const ds = dow.split(',').map(d => DOW_NAMES[parseInt(d)] || d).join(', ');
-      parts.push('on '+ds);
+      const days = dow.split(',').map(d => WEEKDAYS_EN[parseInt(d)]||d).join(', ');
+      const daysZh = dow.split(',').map(d => WEEKDAYS_ZH[parseInt(d)]||d).join('、');
+      en.push('on '+days); zh.push(daysZh);
     }
   }
-  return parts.join(', ') || 'Every minute';
+
+  // Default daily
+  if(dom==='*'&&mon==='*'&&dow==='*'&&hr!=='*'&&!hr.startsWith('*/')){
+    en.push('every day'); zh.push('每天');
+  }
+
+  return '🇬🇧 '+en.join(', ')+'<br>🇨🇳 '+zh.join('，');
 }
 
-function formatHour(h) {
-  const vals = h.split(',').map(v => {
-    if (v.includes('-')) return v;
-    const n = parseInt(v);
-    if (isNaN(n)) return v;
-    return n < 12 ? n+' AM' : (n===12 ? '12 PM' : (n-12)+' PM');
-  });
-  return vals.join(', ');
-}
+// ===== Next Runs Calculator =====
+function showNextRuns(cron){
+  const card = document.getElementById('nextRunsCard');
+  const list = document.getElementById('nextRunsList');
+  const [minF,hrF,domF,monF,dowF] = cron.split(/\s+/);
+  const runs = [];
+  const now = new Date();
+  let check = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes()+1, 0, 0);
+  let iterations = 0;
+  const maxIter = 525600; // 1 year of minutes
 
-function descField(val, type) { return val; }
-
-// ===== Visual Editor =====
-function renderEditor() {
-  const names = cronMode === 6 ? FIELD_NAMES_6 : FIELD_NAMES_5;
-  const grid = document.getElementById('editorGrid');
-  grid.innerHTML = names.map((name, i) => {
-    const range = FIELD_RANGES[name];
-    let options = '<option value="*">* (any)</option>';
-    for (let v = range.min; v <= range.max; v++) {
-      let label = String(v);
-      if (name === 'Month' && MONTH_NAMES[v]) label = v+' ('+MONTH_NAMES[v]+')';
-      if (name === 'Day of Week') label = v+' ('+DOW_NAMES[v]+')';
-      options += '<option value="'+v+'">'+label+'</option>';
+  while(runs.length < 10 && iterations < maxIter){
+    if(matchField(check.getMinutes(), minF, 0, 59) &&
+       matchField(check.getHours(), hrF, 0, 23) &&
+       matchField(check.getDate(), domF, 1, 31) &&
+       matchField(check.getMonth()+1, monF, 1, 12) &&
+       matchField(check.getDay(), dowF, 0, 6)){
+      runs.push(new Date(check));
     }
-    return '<div class="field-group"><label>'+name+'</label><select multiple id="editor_'+i+'" onchange="onEditorChange()">'+options+'</select></div>';
-  }).join('');
-}
+    check = new Date(check.getTime() + 60000);
+    iterations++;
+  }
 
-function syncEditorFromCron(cron) {
-  const parts = cron.trim().split(/\s+/);
-  const names = cronMode === 6 ? FIELD_NAMES_6 : FIELD_NAMES_5;
-  names.forEach((name, i) => {
-    const sel = document.getElementById('editor_'+i);
-    if (!sel) return;
-    const val = parts[i] || '*';
-    Array.from(sel.options).forEach(opt => opt.selected = false);
-    if (val === '*') {
-      sel.options[0].selected = true;
-    } else {
-      const vals = expandCronField(val, FIELD_RANGES[name]);
-      Array.from(sel.options).forEach(opt => {
-        if (vals.includes(parseInt(opt.value))) opt.selected = true;
-      });
-    }
-  });
-}
-
-function expandCronField(field, range) {
-  let result = [];
-  field.split(',').forEach(part => {
-    if (part.includes('/')) {
-      const [r, step] = part.split('/');
-      const s = parseInt(step);
-      const start = r === '*' ? range.min : parseInt(r.split('-')[0]);
-      const end = r === '*' ? range.max : (r.includes('-') ? parseInt(r.split('-')[1]) : range.max);
-      for (let i = start; i <= end; i += s) result.push(i);
-    } else if (part.includes('-')) {
-      const [a, b] = part.split('-').map(Number);
-      for (let i = a; i <= b; i++) result.push(i);
-    } else {
-      result.push(parseInt(part));
-    }
-  });
-  return result;
-}
-
-function onEditorChange() { /* auto-apply on change */ applyEditor(); }
-
-function applyEditor() {
-  const names = cronMode === 6 ? FIELD_NAMES_6 : FIELD_NAMES_5;
-  const parts = names.map((name, i) => {
-    const sel = document.getElementById('editor_'+i);
-    const selected = Array.from(sel.selectedOptions).map(o => o.value);
-    if (selected.includes('*') || selected.length === 0) return '*';
-    return selected.join(',');
-  });
-  const cron = parts.join(' ');
-  setCron(cron);
-  updateFromCron(cron);
-}
-// ===== Next 10 Runs =====
-function updateNextRuns() {
-  const cron = getCron();
-  const tz = document.getElementById('tzSelect').value;
-  const runs = getNextRuns(cron, 10, tz);
-  const ul = document.getElementById('nextRuns');
-  if (runs.length === 0) {
-    ul.innerHTML = '<li style="color:var(--danger)">Cannot calculate next runs for this expression</li>';
+  if(runs.length === 0){
+    card.style.display = 'none';
     return;
   }
-  const now = new Date();
-  ul.innerHTML = runs.map((d, i) => {
-    const fmt = d.toLocaleString('en-US', {timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
-    const diff = d - now;
-    const rel = formatRelative(diff);
-    return '<li><span><span class="idx">#'+(i+1)+'</span>'+fmt+'</span><span class="relative">'+rel+'</span></li>';
+
+  card.style.display = '';
+  list.innerHTML = runs.map((r,i) => {
+    const rel = relativeTime(r, now);
+    const timeStr = r.getFullYear()+'-'+pad(r.getMonth()+1)+'-'+pad(r.getDate())+' '+
+      pad(r.getHours())+':'+pad(r.getMinutes())+' '+WEEKDAYS_EN[r.getDay()].slice(0,3);
+    return '<li><span class="run-idx">#'+(i+1)+'</span><span class="run-time">'+timeStr+'</span><span class="run-rel">'+rel+'</span></li>';
   }).join('');
 }
 
-function formatRelative(ms) {
-  if (ms < 0) return 'past';
-  const s = Math.floor(ms/1000);
-  if (s < 60) return 'in '+s+'s';
-  const m = Math.floor(s/60);
-  if (m < 60) return 'in '+m+'m';
-  const h = Math.floor(m/60);
-  if (h < 24) return 'in '+h+'h '+m%60+'m';
-  const d = Math.floor(h/24);
-  return 'in '+d+'d '+h%24+'h';
-}
-
-function getNextRuns(cron, count, tz) {
-  const parts = cron.trim().split(/\s+/);
-  if (parts.length < 5 || parts.length > 6) return [];
-  const is6 = parts.length === 6;
-  const fields = {
-    second: is6 ? parseCronField(parts[0], 0, 59) : [0],
-    minute: parseCronField(is6 ? parts[1] : parts[0], 0, 59),
-    hour: parseCronField(is6 ? parts[2] : parts[1], 0, 23),
-    dom: parseCronField(is6 ? parts[3] : parts[2], 1, 31),
-    month: parseCronField(is6 ? parts[4] : parts[3], 1, 12),
-    dow: parseCronField(is6 ? parts[5] : parts[4], 0, 6),
-  };
-  if (!fields.minute || !fields.hour || !fields.dom || !fields.month || !fields.dow || !fields.second) return [];
-
-  const results = [];
-  const now = new Date();
-  let d = new Date(now.getTime() + 1000);
-  d.setMilliseconds(0);
-  const maxIter = 500000;
-  let iter = 0;
-
-  while (results.length < count && iter < maxIter) {
-    iter++;
-    const tzDate = getTzComponents(d, tz);
-    if (!fields.month.includes(tzDate.month)) {
-      d = advanceMonth(d, tz, fields.month, tzDate);
-      continue;
-    }
-    if (!fields.dom.includes(tzDate.day) && !fields.dow.includes(tzDate.dow)) {
-      d = advanceDay(d, tz);
-      continue;
-    }
-    if (fields.dom.includes(tzDate.day) || fields.dow.includes(tzDate.dow)) {
-      if (!fields.hour.includes(tzDate.hour)) {
-        d = advanceHour(d, tz);
-        continue;
-      }
-      if (!fields.minute.includes(tzDate.minute)) {
-        d = advanceMinute(d, tz);
-        continue;
-      }
-      if (!fields.second.includes(tzDate.second)) {
-        d = new Date(d.getTime() + 1000);
-        continue;
-      }
-      results.push(new Date(d));
-      d = new Date(d.getTime() + 1000);
-    }
+function matchField(value, field, min, max){
+  if(field === '*') return true;
+  if(field.startsWith('*/')){
+    const step = parseInt(field.slice(2));
+    return value % step === 0;
   }
-  return results;
-}
-
-function parseCronField(field, min, max) {
-  if (field === '*') { const r=[]; for(let i=min;i<=max;i++) r.push(i); return r; }
-  const result = new Set();
-  field.split(',').forEach(part => {
-    if (part.includes('/')) {
+  return field.split(',').some(part => {
+    if(part.includes('-')){
+      const [a,b] = part.split('-').map(Number);
+      return value >= a && value <= b;
+    }
+    if(part.includes('/')){
       const [range, step] = part.split('/');
       const s = parseInt(step);
-      if (isNaN(s) || s <= 0) return;
-      let start = min, end = max;
-      if (range !== '*') {
-        if (range.includes('-')) { const [a,b]=range.split('-').map(Number); start=a; end=b; }
-        else { start = parseInt(range); }
-      }
-      for (let i=start; i<=end; i+=s) result.add(i);
-    } else if (part.includes('-')) {
-      const [a,b] = part.split('-').map(Number);
-      for (let i=a; i<=b; i++) result.add(i);
-    } else {
-      const v = parseInt(part);
-      if (!isNaN(v)) result.add(v);
+      if(range === '*') return value % s === 0;
+      const [a,b] = range.split('-').map(Number);
+      if(value < a || value > b) return false;
+      return (value - a) % s === 0;
     }
+    return parseInt(part) === value;
   });
-  return Array.from(result).sort((a,b)=>a-b);
 }
 
-function getTzComponents(date, tz) {
-  const s = date.toLocaleString('en-US',{timeZone:tz,year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false});
-  const m = s.match(/(\d+)\/(\d+)\/(\d+),?\s*(\d+):(\d+):(\d+)/);
-  if (!m) return {month:1,day:1,dow:0,hour:0,minute:0,second:0};
-  const dt = new Date(date);
-  const dowStr = dt.toLocaleString('en-US',{timeZone:tz,weekday:'short'});
-  const dowMap = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
-  return {
-    month: parseInt(m[1]), day: parseInt(m[2]), year: parseInt(m[3]),
-    hour: parseInt(m[4])%24, minute: parseInt(m[5]), second: parseInt(m[6]),
-    dow: dowMap[dowStr] ?? 0
-  };
+function relativeTime(future, now){
+  const diff = future - now;
+  const mins = Math.floor(diff/60000);
+  if(mins < 60) return 'in '+mins+'m';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return 'in '+hrs+'h '+mins%60+'m';
+  const days = Math.floor(hrs/24);
+  return 'in '+days+'d '+hrs%24+'h';
 }
 
-function advanceMonth(d, tz, months, tzDate) {
-  const next = new Date(d);
-  next.setDate(1); next.setHours(0,0,0,0);
-  for (let i=0; i<24; i++) {
-    next.setMonth(next.getMonth()+1);
-    const c = getTzComponents(next, tz);
-    if (months.includes(c.month)) return next;
-  }
-  return new Date(d.getTime() + 86400000*31);
-}
-function advanceDay(d, tz) { return new Date(d.getTime() + 86400000 - (d.getTime()%86400000 ? 0 : 0)); }
-function advanceHour(d, tz) {
-  const n = new Date(d); n.setMinutes(0,0,0); n.setHours(n.getHours()+1); return n;
-}
-function advanceMinute(d, tz) {
-  const n = new Date(d); n.setSeconds(0,0); n.setMinutes(n.getMinutes()+1); return n;
-}
-// ===== AI Integration =====
-async function aiGenerate() {
-  const key = getApiKey();
-  if (!key) { showToast('Please enter your DeepSeek API Key'); return; }
-  const input = document.getElementById('nlInput').value.trim();
-  if (!input) { showToast('Please describe your schedule'); return; }
-  const btn = document.getElementById('aiBtn');
-  const resultDiv = document.getElementById('aiResult');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Generating...';
-  resultDiv.textContent = '';
+function pad(n){ return n<10?'0'+n:''+n; }
 
-  try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          {role:'system', content:'You are a cron expression expert. The user will describe a schedule in natural language (English or Chinese). Return ONLY a valid cron expression (5-field standard format by default, or 6-field if seconds are mentioned). No explanation, no markdown, no extra text. Just the cron expression.'},
-          {role:'user', content: input}
-        ],
-        temperature: 0.1,
-        max_tokens: 50
-      })
-    });
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message || 'API error');
-    const cron = data.choices[0].message.content.trim();
-    const fields = cron.split(/\s+/);
-    if (fields.length === 6) setMode(6);
-    else if (fields.length === 5) setMode(5);
-    setCron(cron);
-    updateFromCron(cron);
-    resultDiv.innerHTML = '<span style="color:var(--success)">✅ Generated: '+cron+'</span>';
-  } catch(e) {
-    resultDiv.innerHTML = '<span style="color:var(--danger)">❌ Error: '+e.message+'</span>';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '✨ AI Generate';
-  }
-}
-
-async function aiExplain() {
-  const key = getApiKey();
-  if (!key) { showToast('Please enter your DeepSeek API Key'); return; }
-  const cron = getCron();
-  if (!cron) { showToast('No cron expression to explain'); return; }
-  const btn = document.getElementById('explainBtn');
-  const resultDiv = document.getElementById('aiResult');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Explaining...';
-
-  try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          {role:'system', content:'You are a cron expression expert. The user will give you a cron expression. Explain it in both English and Chinese in a clear, human-readable way. Keep it concise (1-2 sentences each language). Format: English explanation\\n中文解释'},
-          {role:'user', content: 'Explain this cron expression: '+cron}
-        ],
-        temperature: 0.3,
-        max_tokens: 200
-      })
-    });
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message || 'API error');
-    const explanation = data.choices[0].message.content.trim();
-    resultDiv.innerHTML = '<div style="text-align:left;white-space:pre-wrap;color:var(--text)">'+explanation.replace(/</g,'&lt;')+'</div>';
-  } catch(e) {
-    resultDiv.innerHTML = '<span style="color:var(--danger)">❌ Error: '+e.message+'</span>';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '📖 AI Explain';
-  }
-}
-
-// ===== Utils =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// ===== advanceDay fix =====
-function advanceDay(d, tz) {
-  const n = new Date(d);
-  n.setHours(0,0,0,0);
-  n.setDate(n.getDate()+1);
-  return n;
-}
-
-// ===== Start =====
-init();
+// Init
+initTemplates();
 </script>
-<!-- MONETIZE:START -->
-<script src="monetize.js"></script>
-<!-- MONETIZE:END -->
+<script src="https://alwingulla.com/88/tag.min.js" data-zone="130747" async data-cfasync="false"></script>
 </body>
 </html>
